@@ -11,10 +11,11 @@
 - Validação de invariantes da estrutura
 
 ## Arquivos
-- ExtensibleHash.py — Implementação das classes principais:
+- ExtensibleHash — Implementação das classes principais:
   - ExtensibleHash: operações insert, search, remove e lógica de divisão/união de buckets.
   - Bucket: estrutura auxiliar para armazenar pares chave-valor e controlar a profundidade local.
-- testEH.py — Bloco principal executa cenários automatizados de inserção, busca, splits, remoção e atualização, mostrando o estado da estrutura após cada etapa.
+- testEH — Bloco principal executa cenários automatizados de inserção, busca, splits, remoção e atualização, mostrando o estado da estrutura após cada etapa.
+- outputTestEH - Saída dos testes em testEH
 
 ```
 ( ===== TESTE 1: Criação de um hash extensível vazio =====)
