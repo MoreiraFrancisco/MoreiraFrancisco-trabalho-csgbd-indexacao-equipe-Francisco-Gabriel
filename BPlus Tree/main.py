@@ -28,8 +28,7 @@ def main() -> None:
         print(f'removing: {i}')
         bptree.remove(i)
         bptree.print_tree()
-
-
+        print('-' * 50)
 
 if __name__ == "__main__":
     main()
