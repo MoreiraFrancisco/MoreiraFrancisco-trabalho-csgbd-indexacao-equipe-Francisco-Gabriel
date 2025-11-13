@@ -123,33 +123,45 @@ class BPlusTree:
             leaf.keys.pop(idx)
             leaf.children.pop(idx)
         except ValueError:
-            print(f"Chave {key} não encontrada para remoção.")
             return
 
         min_keys = self.order // 2
         if len(leaf.keys) < min_keys and leaf is not self.root:
             self._rebalance(leaf)
 
+        if idx == 0 and leaf.parent:
+            self._update_parent_keys(leaf.parent, key, leaf.keys[0] if leaf.keys else None)
+
+    def _update_parent_keys(self, node, old_key, new_key):
+        if node is None:
+            return
+        try:
+            idx = node.keys.index(old_key)
+            if new_key:
+                node.keys[idx] = new_key
+            else:
+                pass
+        except ValueError:
+            self._update_parent_keys(node.parent, old_key, new_key)
+
+
     def _rebalance(self, node):
         parent = node.parent
-        if parent is None:
-
-            if not node.is_leaf and not node.keys:
-                self.root = node.children[0]
-                self.root.parent = None
+        if parent is None or node is self.root:
             return
 
+        min_keys = self.order // 2
         child_idx = parent.children.index(node)
 
         if child_idx > 0:
             left_sibling = parent.children[child_idx - 1]
-            if len(left_sibling.keys) > self.order // 2:
+            if len(left_sibling.keys) > min_keys:
                 self._borrow_from_left(node, left_sibling, parent, child_idx)
                 return
 
         if child_idx < len(parent.children) - 1:
             right_sibling = parent.children[child_idx + 1]
-            if len(right_sibling.keys) > self.order // 2:
+            if len(right_sibling.keys) > min_keys:
                 self._borrow_from_right(node, right_sibling, parent, child_idx)
                 return
 
@@ -158,36 +170,57 @@ class BPlusTree:
         else:
             self._merge_nodes(node, parent.children[child_idx + 1], parent, child_idx + 1)
 
-    def _borrow_from_left(self, node, sibling, parent, child_idx):
-        node.keys.insert(0, sibling.keys.pop())
-        node.children.insert(0, sibling.children.pop())
-        parent.keys[child_idx - 1] = node.keys[0] if node.is_leaf else sibling.keys[-1]
+    def _borrow_from_left(self, node, left_sibling, parent, child_idx):
+        if node.is_leaf:
+            node.keys.insert(0, left_sibling.keys.pop())
+            node.children.insert(0, left_sibling.children.pop())
+            parent.keys[child_idx - 1] = node.keys[0]
+        else:
+            node.keys.insert(0, parent.keys[child_idx - 1])
+            parent.keys[child_idx - 1] = left_sibling.keys.pop()
+            child_to_move = left_sibling.children.pop()
+            child_to_move.parent = node
+            node.children.insert(0, child_to_move)
 
-    def _borrow_from_right(self, node, sibling, parent, child_idx):
-        node.keys.append(sibling.keys.pop(0))
-        node.children.append(sibling.children.pop(0))
-        parent.keys[child_idx] = sibling.keys[0]
+    def _borrow_from_right(self, node, right_sibling, parent, child_idx):
+        if node.is_leaf:
+            node.keys.append(right_sibling.keys.pop(0))
+            node.children.append(right_sibling.children.pop(0))
+            parent.keys[child_idx] = right_sibling.keys[0]
+        else:
+            node.keys.append(parent.keys[child_idx])
+            parent.keys[child_idx] = right_sibling.keys.pop(0)
+            child_to_move = right_sibling.children.pop(0)
+            child_to_move.parent = node
+            node.children.append(child_to_move)
 
-    def _merge_nodes(self, left_node, right_node, parent, right_child_idx):
-        separator_key = parent.keys.pop(right_child_idx - 1)
+    def _merge_nodes(self, left_node, right_node, parent, right_node_idx):
+        parent.children.pop(right_node_idx)
 
+        separator_key_idx = right_node_idx - 1
         if not left_node.is_leaf:
-            left_node.keys.append(separator_key)
+            separator = parent.keys.pop(separator_key_idx)
+            left_node.keys.append(separator)
 
         left_node.keys.extend(right_node.keys)
         left_node.children.extend(right_node.children)
 
-        if left_node.is_leaf:
+        if not left_node.is_leaf:
+            for child in right_node.children:
+                child.parent = left_node
+        else:
             left_node.next = right_node.next
+            if separator_key_idx < len(parent.keys):
+                 parent.keys.pop(separator_key_idx)
 
-        parent.children.pop(right_child_idx)
-
-        if len(parent.keys) < self.order // 2 and parent is not self.root:
-            self._rebalance(parent)
-        elif not parent.keys and parent is self.root:
-
+        min_keys = self.order // 2
+        if parent is self.root and not parent.keys:
             self.root = left_node
             left_node.parent = None
+            return
+
+        if parent is not self.root and len(parent.keys) < min_keys:
+            self._rebalance(parent)
 
     def print_tree(self):
         if not self.root:

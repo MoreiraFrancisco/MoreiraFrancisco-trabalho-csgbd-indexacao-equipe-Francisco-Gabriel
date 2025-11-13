@@ -18,6 +18,18 @@ def main() -> None:
         bptree.print_tree()
         print('-' * 50)
 
+    for i in range(len(l) // 2):
+        j = random.randint(0, len(l) - 1)
+        aux = l[i]
+        l[i] = l[j]
+        l[j] = aux
+
+    for i in l:
+        print(f'removing: {i}')
+        bptree.remove(i)
+        bptree.print_tree()
+
+
 
 if __name__ == "__main__":
     main()
