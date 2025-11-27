@@ -3,6 +3,13 @@
 ## Equipe: Francisco Moreira e Gabriel Ileis
 ## Link para github: [https://github.com/MoreiraFrancisco/MoreiraFrancisco-trabalho-csgbd-indexacao-equipe-Francisco-Gabriel](https://github.com/MoreiraFrancisco/MoreiraFrancisco-trabalho-csgbd-indexacao-equipe-Francisco-Gabriel)
 
+# Árvore B+
+O presente trabalho apresenta uma implementação da árvore B+. Os seguintes métodos consistem a interface do objeto `BPlusTree`:
+- `search(key)`: Método que pesquisa um elemento, dada uma `key`. Retorna o elemento caso ele esteja na arvore ou `None`.
+- `insert(key, value)`: Insere o argumento `value` com chave `key`. Caso `key` já esteja na árvore, seu elemento é substituído por `value`.
+- `remove(key)`: Remove o elemento identificado por `key`. 
+- `print_leaves()`: Apresenta a árvore B+ por níveis na saída padrão.
+
 # Hash Extensível
 ## A implementação inclui:
 - Divisão automática de buckets (split) quando cheios
